@@ -4,7 +4,7 @@ import math
 one_names = [
     [["zero", 2], ["zeroeth", 2]],
     [["one", 1], ["first", 1]],
-    [["two", 1, 1], ["second", 2]],
+    [["two", 1], ["second", 2]],
     [["three", 1], ["third", 1]],
     [["four", 1], ["fourth", 1]],
     [["five", 1], ["fifth", 1]],
@@ -149,6 +149,7 @@ def number_names_generator(leave_point,max_number):
         { "id": "-", "syllables": 2, "text": " minus ", "suffix": "", "pemdas_left": 5,"pemdas_right": 4,"pemdas_result": 5},
         { "id": "/", "syllables": 2, "text": " over ", "suffix": "", "pemdas_left": 3,"pemdas_right": 2,"pemdas_result": 4},
         { "id": "fraction", "syllables": 0, "text": " ", "suffix": "s", "pemdas_left": 2,"pemdas_right": 0,"pemdas_result": 2},
+        { "id": "group", "syllables": 0, "text": " ", "suffix": "s", "pemdas_left": 3,"pemdas_right": 1,"pemdas_result": 3},
         { "id": "^", "syllables": 2, "text": " to the ", "suffix": "","pemdas_left": 2, "pemdas_right": 0,"pemdas_result": 2},
     ]
 
@@ -194,6 +195,8 @@ def number_names_generator(leave_point,max_number):
                             and number_names[left_value]["zeroes"] >= number_names[right_value]["digits"]
                             and (number_names[left_value]["nonzero"] > 1 or number_names[right_value]["nonzero"] > 1)
                             and number_names[left_value]["names"][1] == number_names[left_value]["names"][2]):
+                            continue
+                        elif op["id"] == "group" and right_value%10==6:
                             continue
 
 
@@ -272,7 +275,7 @@ def get_first_extremes(op,min_missing,max_number):
         return min_missing**(1/3), max_number**(1/3)
     elif op["id"] == "+":
         return 6, max_number-1
-    elif op["id"] == "*":
+    elif op["id"] == "*" or op["id"] == "group":
         return 2, max_number**0.5
     elif op["id"] == "-":
         return min_missing+1, max_number
@@ -284,7 +287,7 @@ def get_first_extremes(op,min_missing,max_number):
 def get_second_extremes(op,min_missing,max_number,left_value):
     if op["id"] == "+":
         return 1, min(left_value,max_number - left_value)
-    elif op["id"] == "*":
+    elif op["id"] == "*" or op["id"] == "group":
         return max(left_value,min_missing/left_value), max_number/left_value
     elif op["id"] == "-":
         return 1, left_value-min_missing
@@ -302,7 +305,7 @@ def get_output(op,left_value,right_value=0):
         return left_value**right_value, True
     elif op["id"] == "+":
         return left_value + right_value, True
-    elif op["id"] == "*":
+    elif op["id"] == "*" or op["id"] == "group":
         return left_value * right_value, True
     elif op["id"] == "-":
         return left_value - right_value, True
